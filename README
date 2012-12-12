@@ -1,0 +1,20 @@
+requires:
+
+- ROOT (root.cern.ch)
+
+installation instructions for ubuntu >= 12.04 64bit:
+(after installing the proper dependencies and libs for x11, dpkg-dev,
+python-dev...)
+
+./configure --enable-{fftw3,genvector,memstat,python,qt,roofit,soversion,asimage,mathmore,minuit2} --prefix=/usr --with-python-{incdir=/usr/include/python2.7,libdir=/usr/lib} --disable-xrootd --with-{x11,xft,xext}-libdir=/usr/lib/x86_64-linux-gnu/
+
+make -j3
+
+sudo make install
+
+
+
+
+- the PyGene library
+
+https://github.com/blaa/PyGene
