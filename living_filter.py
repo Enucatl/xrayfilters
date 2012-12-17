@@ -30,7 +30,7 @@ class ThicknessGene(FloatGene):
     "genes randomly generated within this range"
     """max and min thickness"""
     randMin = 0
-    randMax = 0.0200
+    randMax = 0.0250
         
     "probability of mutation"
     mutProb = 0.2
@@ -48,7 +48,8 @@ class LivingFilter(Organism, Filter):
             "Copper",
             "Germanium",
             "Molybdenum",
-            "Neodymium",
+            #"Neodymium",
+            "Cerium",
             "Lead",
             #"Tungsten",
             #"Iridium",
@@ -113,7 +114,7 @@ if __name__ == '__main__':
             generations += 1
 
             best = pop.organisms[0]
-            best.draw()
+            #best.draw()
             print("fitness={0}".format(best.get_fitness()))
             #for name, gene in best.genome.iteritems():
                 #print(name, gene.value)

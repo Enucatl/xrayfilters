@@ -5,7 +5,7 @@
 void update_histogram(const TGraph& graph, TH1D& histogram, double thickness, int min, int max){
     double transmission = 0;
     for (int energy = min; energy < max; energy++) {
-        transmission = graph.Eval(energy, 0, "S");
+        transmission = graph.Eval(energy);
         if (transmission > 0) {
             transmission = pow(transmission, thickness);
         }
