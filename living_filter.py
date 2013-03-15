@@ -15,22 +15,22 @@ try:
 except IndexError:
     spectrum = Spectrum("spekcalc_end100.dat")
 
-#detector = DetectorEfficiency(14, 0.8)
-#dead_layer = Transmission(14, 0.15)
-#energy_window = 50, 75
-#fixed_part = spectrum + detector + dead_layer
+detector = DetectorEfficiency(14, 0.8)
+dead_layer = Transmission(14, 0.15)
+energy_window = 50, 75
+fixed_part = spectrum + detector + dead_layer
 
 #thomas' setup
-energy_window = 21, 41
-filter_frame = Transmission(22, 0.0240)
-fixed_part = spectrum + filter_frame
+#energy_window = 21, 41
+#filter_frame = Transmission(22, 0.0240)
+#fixed_part = spectrum + filter_frame
 
 class ThicknessGene(FloatGene):
 
     "genes randomly generated within this range"
     """max and min thickness"""
     randMin = 0
-    randMax = 0.0250
+    randMax = 0.0200
         
     "probability of mutation"
     mutProb = 0.2
@@ -43,16 +43,16 @@ class LivingFilter(Organism, Filter):
     """fixed part (detector + tube spectrum) taken as global variables"""
 
     element_list = [
-            "Aluminium",
+            #"Aluminium",
             "Iron",
             "Copper",
             "Germanium",
             "Molybdenum",
-            #"Neodymium",
-            "Cerium",
-            "Lead",
+            "Neodymium",
+            #"Cerium",
+            #"Lead",
             #"Tungsten",
-            #"Iridium",
+            "Iridium",
             ]
 
     genome = dict(

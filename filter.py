@@ -92,8 +92,7 @@ if __name__ == '__main__':
             }
 
     fixed_part.draw()
-    f = Filter(fixed_part, filtering_elements)
-    f.filter() 
-    print(f.purity(50, 75))
-    f.draw()
+    window = 50, 75
+    f = Filter(fixed_part, filtering_elements, window)
+    f.filter()
     raw_input()
