@@ -166,12 +166,14 @@ X ray energy #(){keV};\
         self.canvas.Update()
         
 if __name__ == '__main__':
+    import sys
     gold = Transmission(79, 0.1)
     gold.draw()
     lead = Transmission(82, 0.1)
     lead.draw()
     double = gold + lead
     double.draw()
-    spectrum = Spectrum("spekcalc_end100.dat")
+    spectrum = Spectrum(sys.argv[1])
+    print("mean energy:", spectrum.histogram.GetMean(), "keV")
     spectrum.draw()
     raw_input()
