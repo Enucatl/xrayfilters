@@ -41,7 +41,7 @@ X ray energy #(){keV};\
                 max_energy)
 
         for i, energy in enumerate(range(min_energy, max_energy)):
-            visibility = 2 / pi * fabs(sin(pi * self._target_energy /
+            visibility = 2 / pi * fabs(sin(pi / 2 * self._target_energy /
                 energy)**2 * sin(self._talbot_order * pi / 2 *
                     self._target_energy / energy))
             self.histogram.SetBinContent(i + 1, visibility)
