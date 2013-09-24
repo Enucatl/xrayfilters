@@ -1,24 +1,31 @@
 #!/usr/bin/env python
+
+"""Calculate the spectrum and the visibility after passing some filters.
+
+"""
 from __future__ import division, print_function
+
 import random
 import string
-from rootstyle import tdrstyle
-from periodic_table import periodic_table
 import os
+
 import ROOT
-from transmission import Spectrum, Transmission, DetectorEfficiency
+
+from transmission import Visibility, Spectrum, Transmission, DetectorEfficiency
+from periodic_table import periodic_table, name_to_Z
+from rootstyle import tdrstyle
 
 tdrstyle()
 
 class Filter(object):
     """the Filter is made of a Spectrum and one or more Transmission. The
-    Spectrum also includes the detector and any fixed filters. """
+    Spectrum also includes the detector and any fixed filters as well as a
+    Visibility calculator. """
 
-    def __init__(self, spectrum, tr_dict, energy_window):
+    def __init__(self, spectrum, tr_dict, visibility):
         super(Filter, self).__init__()
         max_energy = spectrum.max_energy
         min_energy = spectrum.min_energy
-        self.energy_window = energy_window
         self.spectrum = spectrum
         self.tr_dict = tr_dict
         histogram_name = " ".join(tr.histogram.GetName()
@@ -28,6 +35,7 @@ class Filter(object):
         histogram_name += ''.join(random.choice(string.letters)
                 for i in range(5))
         self.histogram = spectrum.histogram.Clone(histogram_name)
+        self._visibility = visibility
         
     def filter(self, change_thickness_of={}):
         if not self.tr_dict:
@@ -44,30 +52,21 @@ class Filter(object):
                     for tr in self.tr_dict.itervalues())
             self.histogram = self.spectrum.histogram.Clone(histogram_name)
             self.histogram.Multiply(total_filter.histogram)
-            element_thickness = ("{0}, x={1:.4f} #(){{cm}}".format(
+            element_thickness = ("{0}, {1:.4f} #(){{cm}}".format(
                 periodic_table[tr.element_Z], tr.thickness)
                 for tr in self.tr_dict.itervalues())
             for element in element_thickness:
                 self.pave.AddText(element)
-            min_energy, max_energy = self.energy_window
-            first_bin = min_energy - self.spectrum.min_energy + 1
-            last_bin = max_energy - self.spectrum.min_energy + 1
-            signal_integral = self.histogram.Integral(first_bin, last_bin)
-            overflow = self.histogram.Integral(last_bin + 1, self.histogram.GetNbinsX())
-            integral = self.histogram.Integral()
             self.pave.SetFillColor(0)
-            self.pave.AddText("total flux {0:.3g}".format(integral))
-            self.pave.AddText("{0:.1%} between {1[0]:.0f}-{1[1]:.0f} keV".format(
-                signal_integral / integral, self.energy_window))
-            self.pave.AddText("{0:.1%} over {1:.0f} keV".format(
-                overflow / integral, self.energy_window[1]))
+            self.pave.AddText(
+                    "total flux {0:.3g}".format(self.histogram.Integral()))
             self.pave.AddText("{0:.1%} efficiency".format(self.efficiency()))
+            self.pave.AddText("{0:.1%} visibility".format(self.visibility()))
 
-    def purity(self):
-        min_energy, max_energy = self.energy_window
-        first_bin = min_energy - self.spectrum.min_energy + 1
-        last_bin = max_energy - self.spectrum.min_energy + 1
-        return self.histogram.Integral(first_bin, last_bin) / self.histogram.Integral()
+    def visibility(self):
+        temp_hist = self.histogram.Clone()
+        temp_hist.Multiply(self._visibility.histogram)
+        return temp_hist.Integral() / self.histogram.Integral()
 
     def efficiency(self):
         return self.histogram.Integral() / self.spectrum.histogram.Integral()
@@ -81,18 +80,44 @@ class Filter(object):
         self.canvas.Update()
 
 if __name__ == '__main__':
-    spectrum = Spectrum("spekcalc_end100.dat")
-    detector = DetectorEfficiency(14, 0.8)
-    dead_layer = Transmission(14, 0.15)
+    import argparse
+    commandline_parser = argparse.ArgumentParser(description=__doc__,
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    fixed_part = spectrum + detector + dead_layer
-    
-    filtering_elements = {
-            "tungsten": Transmission(74, 0.03),
-            }
+    commandline_parser.add_argument('--spectrum', '-s',
+            metavar='SPECTRUM_FILE',
+            nargs=1,
+            help='''File with the spekcalc spectrum.''')
+    commandline_parser.add_argument('--energy', '-e',
+            type=float,
+            nargs='?',
+            default=100,
+            help='design energy of the interferometer (keV).')
+    commandline_parser.add_argument('--talbot', '-t',
+            type=int,
+            nargs='?',
+            default=1,
+            help='fractional Talbot distance.')
+    commandline_parser.add_argument('--filters', '-f',
+            nargs='*',
+            help='''filters with the syntax Element/thickness(cm), e.g. 300 um of
+            Tungsten can be passed as --filters tungsten/0.03 .''')
 
-    fixed_part.draw()
-    window = 50, 75
-    f = Filter(fixed_part, filtering_elements, window)
+    args = commandline_parser.parse_args()
+
+    spectrum = Spectrum(args.spectrum[0])
+    target_energy = args.energy
+    talbot_order = args.talbot
+
+    filtering_elements = [x.split('/') for x in args.filters]
+    filtering_elements = [(element.capitalize(), float(thickness))
+        for element, thickness in filtering_elements]
+    filtering_elements = dict([(element, Transmission(name_to_Z[element], thickness))
+        for element, thickness in filtering_elements])
+
+    visibility = Visibility(spectrum.min_energy, spectrum.max_energy,
+            target_energy, talbot_order)
+    f = Filter(spectrum, filtering_elements, visibility)
     f.filter()
+    f.draw()
     raw_input()

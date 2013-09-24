@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import division, print_function
 from rootstyle import tdrstyle
-import math
+from math import pi, sin, fabs
 import os
 import ROOT
 
@@ -10,9 +10,25 @@ tdrstyle()
 ROOT.gROOT.ProcessLine(".L update_histogram.C+")
 
 class Visibility(object):
-    """docstring for Visibility"""
-    def __init__(self, min_energy=10, max_energy=200):
+    """Calculate the polychromatic visibility as in Thuering 2013,
+    Performance and optimization of X-ray grating interferometry
+    
+    the visibility for a pi-shifting G1, target energy of E_0,
+    and a fractional Talbot order m is given by
+
+        v(E) = \\frac{2}{\pi}
+                    \left | \sin^2(\pi E_0 / E) \sin (m\pi / 2 E_0/E)\\right |
+
+    The total visibility is then the integral of v(E) weighted over the
+    spectrum.
+    """
+    def __init__(self,
+            min_energy=10, max_energy=200,
+            target_energy=100,
+            talbot_order=1):
         super(Visibility, self).__init__()
+        self._target_energy = target_energy
+        self._talbot_order = talbot_order
         file_name = "visibility"
         histogram_name = file_name + "_hist"
         self.histogram = ROOT.TH1D(
@@ -25,12 +41,10 @@ X ray energy #(){keV};\
                 max_energy)
 
         for i, energy in enumerate(range(min_energy, max_energy)):
-            baseline = 0
-            if energy < 50 or energy > 75:
-                self.histogram.SetBinContent(i + 1, 1 - baseline)
-            else:
-                self.histogram.SetBinContent(i + 1,
-                        1 - baseline + math.cos(math.pi * energy / 25 - 62.5));
+            visibility = 2 / pi * fabs(sin(pi * self._target_energy /
+                energy)**2 * sin(self._talbot_order * pi / 2 *
+                    self._target_energy / energy))
+            self.histogram.SetBinContent(i + 1, visibility)
 
 class Transmission(object):
     """the Transmission object is a histogram with the transmission exp(-mu
