@@ -86,7 +86,7 @@ if __name__ == '__main__':
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     commandline_parser.add_argument('--spectrum', '-s',
-            metavar='SPECTRUM_FILE',
+            metavar='FILE',
             nargs=1,
             help='''File with the spekcalc spectrum.''')
     commandline_parser.add_argument('--energy', '-e',
@@ -95,12 +95,12 @@ if __name__ == '__main__':
             default=100,
             help='design energy of the interferometer (keV).')
     commandline_parser.add_argument('--talbot', '-t',
-            type=int,
+            type=int, metavar='ORDER',
             nargs='?',
             default=1,
             help='fractional Talbot distance.')
     commandline_parser.add_argument('--filters', '-f',
-            nargs='*',
+            nargs='*', metavar='ELEMENT/THICKNESS',
             help='''filters with the syntax Element/thickness(cm), e.g. 300 um of
             Tungsten can be passed as --filters tungsten/0.03 .''')
 
