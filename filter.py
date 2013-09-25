@@ -10,6 +10,7 @@ import string
 import os
 
 import ROOT
+ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 from transmission import Visibility, Spectrum, Transmission, DetectorEfficiency
 from periodic_table import periodic_table, name_to_Z
