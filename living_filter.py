@@ -70,7 +70,7 @@ class LivingFilter(Organism, Filter):
     def filter(self):
         change_thickness_of = dict(
                 (name, gene.value)
-                for name, gene in self.genes.iteritems())
+                for name, gene in self.genes.items())
         Filter.filter(self, change_thickness_of)
 
     def fitness(self):
@@ -116,7 +116,7 @@ if __name__ == '__main__':
             best = pop.organisms[0]
             #best.draw()
             print("fitness={0}".format(best.get_fitness()))
-            #for name, gene in best.genome.iteritems():
+            #for name, gene in best.genome.items():
                 #print(name, gene.value)
             print("generation", generations)
 
