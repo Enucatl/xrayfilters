@@ -43,26 +43,24 @@ class LivingFilter(Organism, Filter):
     """fixed part (detector + tube spectrum) taken as global variables"""
 
     element_list = [
-            #"Aluminium",
-            "Iron",
-            "Copper",
-            "Germanium",
-            "Molybdenum",
-            "Neodymium",
-            #"Cerium",
-            #"Lead",
-            #"Tungsten",
-            "Iridium",
+            #"Al",
+            ("Fe", 7.96),
+            ("Cu", 8.92),
+            ("Mo", 10.28),
+            ("Nd", 6.8),
+            #"Pb",
+            #"W",
+            ("Ir", 22.65),
             ]
 
     genome = dict(
-            (element, ThicknessGene)
-            for element in element_list)
+            (element, density, ThicknessGene)
+            for element, density in element_list)
 
     def __init__(self, **kwargs):
         Organism.__init__(self, **kwargs)
         tr_dict = dict(
-            (gene, Transmission(name_to_Z[gene], 0))
+            (gene, Transmission(element, 0))
             for gene in self.genes)
         Filter.__init__(self, fixed_part, tr_dict, energy_window)
         self.filter()
@@ -123,7 +121,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     print("Executed", generations, "generations")
-    pop.organisms[0].draw()
-    raw_input()
+    # pop.organisms[0].draw()
+    input()
 
 

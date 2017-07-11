@@ -26,13 +26,14 @@ class Visibility(object):
         self._target_energy = target_energy
         self._talbot_order = talbot_order
         self.histogram = np.vstack(zip(
-            np.arange(min_energy, max_energy),
-            np.zeros(max_energy - min_energy)))
-        for i, energy in enumerate(range(min_energy, max_energy)):
+            np.arange(min_energy, max_energy + 1),
+            np.zeros(max_energy + 1 - min_energy)))
+        for i, energy in enumerate(range(min_energy, max_energy + 1)):
             visibility = 2 / pi * fabs(sin(pi / 2 * self._target_energy /
                 energy)**2 * sin(self._talbot_order * pi / 2 *
                     self._target_energy / energy))
             self.histogram[i, 1] = visibility
+
 
 class Transmission(object):
     """the Transmission object is a histogram with the transmission exp(-mu
@@ -44,11 +45,11 @@ class Transmission(object):
         super(Transmission, self).__init__()
         self.element = element
         self.histogram = np.vstack(zip(
-            np.arange(min_energy, max_energy),
-            np.zeros(max_energy - min_energy)))
+            np.arange(min_energy, max_energy + 1),
+            np.zeros(1 + max_energy - min_energy)))
         self.min_energy = min_energy
         self.max_energy = max_energy
-        for i, energy in enumerate(range(min_energy, max_energy)):
+        for i, energy in enumerate(range(min_energy, max_energy + 1)):
             _, _, atlen = xraydb.xray_delta_beta(
                 element, density, energy * 1e3)
             self.histogram[i, 1] = np.exp(-1 / atlen)
@@ -66,7 +67,8 @@ class Transmission(object):
         filter"""
         self._thickness = thickness
 
-        for i, energy in enumerate(range(self.min_energy, self.max_energy)):
+        for i, energy in enumerate(range(self.min_energy, self.max_energy +
+                                        1)):
             transmission = self.graph(energy)
             if transmission > 0:
                 transmission = transmission ** thickness
@@ -91,7 +93,8 @@ class DetectorEfficiency(Transmission):
         filter"""
         self._thickness = thickness
         "evaluate efficiency in steps of 1 keV"
-        for i, energy in enumerate(range(self.min_energy, self.max_energy)):
+        for i, energy in enumerate(range(self.min_energy, self.max_energy +
+                                        1)):
             transmission = self.graph(energy)
             if transmission > 0:
                 transmission = 1 - transmission ** thickness
