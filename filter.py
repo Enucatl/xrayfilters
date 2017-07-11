@@ -33,11 +33,9 @@ class Filter(object):
         else:
             for key, new_thickness in change_thickness_of.items():
                 self.tr_dict[key].thickness = new_thickness
-            print(list(self.tr_dict.values())[0].histogram.shape)
             total_filter = sum(
                 list(self.tr_dict.values())[1:],
                 list(self.tr_dict.values())[0])
-            print(total_filter.histogram.shape)
             self.histogram = np.copy(self.spectrum.histogram)
             self.histogram[:, 1] *= total_filter.histogram[:, 1]
             element_thickness = ("{0}, {1:.4f} #(){{cm}}".format(

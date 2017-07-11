@@ -19,9 +19,9 @@ class Visibility(object):
     spectrum.
     """
     def __init__(self,
-            min_energy=10, max_energy=200,
-            target_energy=100,
-            talbot_order=1):
+            min_energy, max_energy,
+            target_energy,
+            talbot_order):
         super(Visibility, self).__init__()
         self._target_energy = target_energy
         self._talbot_order = talbot_order
@@ -41,7 +41,7 @@ class Transmission(object):
     property.
     All measures of length are in cm!"""
 
-    def __init__(self, element, density, thickness=1, min_energy=10, max_energy=200):
+    def __init__(self, element, density, thickness, min_energy, max_energy):
         super(Transmission, self).__init__()
         self.element = element
         self.histogram = np.vstack(zip(
